@@ -17,6 +17,11 @@ int main(){
 
 	int sfd, c, res;
 	char buf[255];
+	string tempOutput; 
+	string humOutput;
+	string pressOutput;
+	string requeteMySQL = "INSERT INTO mesure (pression,temperature,humidite) VALUES ('"; 
+	char requete[1024];
 
 	struct termios newtio;//Crée la structure
 	bzero(&newtio, sizeof(newtio));//Initialisaiton de la structure
@@ -35,30 +40,36 @@ int main(){
 
 		cout << "Port serie ouvert en lecture.\n";//Message s'affichant pour dire que le port est ouvert
 
-		for (int i = 0; i < 80; i++){//Tourne 50 fois
+		for (int i = 0; i < 150; i++){//Tourne 50 fois
 			res = read(sfd,buf,125);//retourne après la lecture de 255 char
 			string chaineDeCarac(buf);
 			buf[res]=0;
 			
 			//cout << s << endl;
 			if (chaineDeCarac.find("Temp[0]") != string::npos){
-				string tempOutput = chaineDeCarac.substr(9, chaineDeCarac.find(" d"));
+				tempOutput = chaineDeCarac.substr(10, chaineDeCarac.find(" d"));
 				tempOutput = tempOutput.substr(0,tempOutput.find(" "));
 				cout << tempOutput << endl;
 			}
 			if(chaineDeCarac.find("Hum[0]") != string::npos){
-				string humOutput = chaineDeCarac.substr(8, chaineDeCarac.find(" %"));
+				humOutput = chaineDeCarac.substr(8, chaineDeCarac.find(" %"));
 				humOutput = humOutput.substr(0,humOutput.find(" "));
 				cout << humOutput << endl;
 			}
 			if(chaineDeCarac.find("Press[1]") != string::npos){
-				string pressOutput = chaineDeCarac.substr(10, chaineDeCarac.find(" h"));
+				pressOutput = chaineDeCarac.substr(10, chaineDeCarac.find(" h"));
 				pressOutput = pressOutput.substr(0,pressOutput.find(" "));
 				cout << pressOutput << endl;
 			}
 		}
 
 		cout << endl;
+		requeteMySQL += pressOutput +="','";
+		requeteMySQL += tempOutput += "','";
+		requeteMySQL += humOutput += "');";
+		//cout << requeteMySQL << endl;
+		char requete[requeteMySQL.size() + 1];
+		strcpy(requete, requeteMySQL.c_str());
 	}
 
 	close(sfd);
@@ -75,7 +86,7 @@ int main(){
 		return EXIT_FAILURE;
 	}
 
-	if (mysql_query(conn, "INSERT INTO mesure (pression,temperature,humidite) VALUES ('25.0','22.0','35.5')") != 0){
+	if (mysql_query(conn, requete) != 0){
 		cout << stderr << "Query Failure\n";
 		return EXIT_FAILURE;
 	}
