@@ -42,15 +42,23 @@ int main(){
 			
 			//cout << s << endl;
 			if (chaineDeCarac.find("Temp[0]") != string::npos){
-				cout << "Temp !";
+				string tempOutput = chaineDeCarac.substr(9, chaineDeCarac.find(" d"));
+				tempOutput = tempOutput.substr(0,tempOutput.find(" "));
+				cout << tempOutput << endl;
 			}
 			if(chaineDeCarac.find("Hum[0]") != string::npos){
-				cout << "Hum !";
+				string humOutput = chaineDeCarac.substr(8, chaineDeCarac.find(" %"));
+				humOutput = humOutput.substr(0,humOutput.find(" "));
+				cout << humOutput << endl;
 			}
 			if(chaineDeCarac.find("Press[1]") != string::npos){
-				cout << "Press !";
+				string pressOutput = chaineDeCarac.substr(10, chaineDeCarac.find(" h"));
+				pressOutput = pressOutput.substr(0,pressOutput.find(" "));
+				cout << pressOutput << endl;
 			}
 		}
+
+		cout << endl;
 	}
 
 	close(sfd);
