@@ -8,33 +8,14 @@
 #include <mariadb/mysql.h>
 #include <iostream>
 using namespace std;
-//#include "mbed.h"
 
-//AnalogIn capteur_temperature(ADC_TEMP); //le capteur interne est une entrée analogique
-
-#define FALSE 0
-#define TRUE 1
-#define _POSIX_SOURCE 1
 #define PORTSERIE "/dev/ttyS0"//Défini la constante sur le chemin sur lequel la carte est branchée
 #define BAUDRATE 115200
 
-//volatile int STOP = FALSE;
-
-/*
-void print (std::string::size_type n, std::string const &buf)
-{
-	if (n == std::string::npos){
-		std::cout << "not found\n";
-	}else {
-		std:: cout << " " << buf.substr(n) << endl;
-	}
-}
-*/
 
 int main(){
 
 	int sfd, c, res;
-	std::string::size_type n;
 	char buf[255];
 
 	struct termios newtio;//Crée la structure
@@ -54,28 +35,24 @@ int main(){
 
 		cout << "Port serie ouvert en lecture.\n";//Message s'affichant pour dire que le port est ouvert
 
-		for (int i = 0; i < 100; i++){//Tourne 50 fois
+		for (int i = 0; i < 80; i++){//Tourne 50 fois
 			res = read(sfd,buf,125);//retourne après la lecture de 255 char
-			std::string s(buf);
+			string chaineDeCarac(buf);
 			buf[res]=0;
 			
 			//cout << s << endl;
-			if (s.find("Temp[0]") != string::npos){
+			if (chaineDeCarac.find("Temp[0]") != string::npos){
 				cout << "Temp !";
 			}
-			else if(s.find("Hum[0]") != string::npos){
+			if(chaineDeCarac.find("Hum[0]") != string::npos){
 				cout << "Hum !";
 			}
-			else if(s.find("Press[0]") != string::npos){
+			if(chaineDeCarac.find("Press[1]") != string::npos){
 				cout << "Press !";
 			}
-
-		
-				//n = s.find("Temp[0]");
-				//print(n,s);
-			
 		}
 	}
+
 	close(sfd);
 
 	MYSQL * conn;
@@ -98,9 +75,5 @@ int main(){
 
 	mysql_close(conn);
 	return EXIT_SUCCESS;
-
-//voir sprintf
-
-//http://electroniqueamateur.blogspot.com/2017/09/mesurer-une-temperature-avec-une-carte.html
 }
 
