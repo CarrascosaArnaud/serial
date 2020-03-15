@@ -1,7 +1,7 @@
 /*
     Projet : Lecture de capteurs sur carte nucléo pour les récupérer sur une base de données
     Auteur : Carrascosa Arnaud
-    Date : 14/03/2020
+    Date : 15/03/2020
 */
 
 #include <stdio.h>
@@ -28,7 +28,7 @@ int main(){
     string humOutput;
     string pressOutput;
     string requeteMySQL = "INSERT INTO mesure (pression,temperature,humidite) VALUES ('";//Début de requete SQL
-    char requete[1024]; //Sera utilisée pour la requete finale
+    char requeteFinale[1024]; //Sera utilisée pour la requete finale
 
     //Ouvre le port série
     struct termios newtio;
@@ -47,10 +47,10 @@ int main(){
     }
     else{//S'il n'y a pas d'erreur
 
-   	 cout << "Port serie ouvert en lecture.\n";//Message s'affichant pour dire que le port est ouvert
+   	 cout << "Port serie ouvert en lecture.\n\n";//Message s'affichant pour dire que le port est ouvert
 
    	 //Boucle permettant de lire les données
-   	 for (int i = 0; i < 90; i++){
+   	 for (int i = 0; i < 50; i++){
    		 res = read(sfd,buf,125);
    		 string chaineDeCarac(buf);
    		 buf[res]=0;
@@ -75,14 +75,16 @@ int main(){
    		 }
    	 }
 
-
    	 //Concaténation pour ajouter les données à la requête finale
-   	 requeteMySQL += pressOutput +="','";
-   	 requeteMySQL += tempOutput += "','";
-   	 requeteMySQL += humOutput += "');";
+   	 requeteMySQL += pressOutput;//Rajoute les données
+   	 requeteMySQL +="','";//Rajoute la syntaxe pour la requête SQL
+   	 requeteMySQL += tempOutput;//Rajoute les données
+   	 requeteMySQL += "','";//Rajoute la syntaxe pour la requête SQL
+   	 requeteMySQL += humOutput;//Rajoute les données
+   	 requeteMySQL += "');";//Rajoute la syntaxe pour la requête SQL
 
    	 //cout << requeteMySQL << endl;//Affiche la requête SQL finale, utile pour le debug
-   	 strcpy(requete, requeteMySQL.c_str());//Copie la requete du format string en tableau de char
+   	 strcpy(requeteFinale, requeteMySQL.c_str());//Copie la requete du format string en tableau de char
     }
 
     close(sfd);//Ferme la lecture du port série
@@ -105,9 +107,14 @@ int main(){
     }
 
     //Permet d'envoyer une requête SQL
-    if (mysql_query(conn, requete) != 0){
+    if (mysql_query(conn, requeteFinale) != 0){//Gestion d'erreur
    	 cout << stderr << "Echec de requete\n";//Message affiché si la requête envoyée n'est pas acceptée
    	 return EXIT_FAILURE;//Fermeture du programme avec erreur
+    }
+    else{//Messages affichés si la requête se passe bien
+   	 cout << "La requete s'est effectue avec succes !\n";
+   	 cout << "Les donnees rentrees sont les suivantes :\n";
+   	 cout << "Pression : " << pressOutput << "\tTemperature : " << tempOutput << "\tHumidite : " << humOutput << endl;
     }
 
 
